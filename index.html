@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AimSens | VIZX</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#000000;
+}
+
+/* PANEL */
+.panel{
+    width:320px;
+    max-height:85vh;
+    overflow-y:auto;
+    background:#0a0000;
+    border-radius:20px;
+    padding:20px;
+    color:#ff0000;
+    animation: glow 2s infinite ease-in-out;
+}
+
+/* SCROLL */
+.panel::-webkit-scrollbar{
+    width:6px;
+}
+.panel::-webkit-scrollbar-thumb{
+    background:#ff0000;
+    border-radius:10px;
+}
+
+/* LUZ */
+@keyframes glow{
+    0%{box-shadow:0 0 20px #ff0000aa,inset 0 0 20px #ff000022;}
+    50%{box-shadow:0 0 50px #ff0000cc,inset 0 0 40px #ff000044;}
+    100%{box-shadow:0 0 20px #ff0000aa,inset 0 0 20px #ff000022;}
+}
+
+.title{
+    text-align:center;
+    font-weight:bold;
+    color:#ff0000;
+    margin-bottom:18px;
+}
+
+/* OPCIONES */
+.option{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1a0000;
+    padding:14px 16px;
+    border-radius:12px;
+    margin-bottom:12px;
+    animation: float 3s ease-in-out infinite;
+    font-size:14px;
+}
+
+@keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-2px)}
+}
+
+/* SWITCH */
+.switch{
+    width:42px;
+    height:22px;
+    background:#2a0a0a;
+    border-radius:20px;
+    position:relative;
+    cursor:pointer;
+}
+.switch::before{
+    content:"";
+    width:18px;
+    height:18px;
+    background:#660000;
+    border-radius:50%;
+    position:absolute;
+    top:2px;
+    left:2px;
+    transition:.25s;
+}
+.switch.active{
+    background:#ff0000;
+}
+.switch.active::before{
+    left:22px;
+    background:#fff;
+}
+
+/* SLIDER */
+.slider-box{
+    margin:18px 0;
+}
+.slider-box label{
+    font-size:13px;
+    display:block;
+    margin-bottom:6px;
+}
+input[type=range]{
+    width:100%;
+    accent-color:#ff0000;
+}
+
+/* BOTONES */
+.main-btn,.off-btn,.code-btn{
+    width:100%;
+    margin-top:12px;
+    padding:14px;
+    border-radius:20px;
+    font-weight:bold;
+    transition:.25s;
+}
+.main-btn{
+    border:none;
+    background:#ff0000;
+    color:#fff;
+}
+.off-btn{
+    background:#1a0000;
+    border:1px solid #ff0000;
+    color:#ff0000;
+}
+.code-btn{
+    background:#0a0000;
+    border:1px solid #ff0000;
+    color:#ff0000;
+}
+.main-btn:hover,.off-btn:hover,.code-btn:hover{
+    transform:scale(1.03);
+}
+
+/* NOTIFICACIÓN */
+.toast{
+    position:fixed;
+    bottom:30px;
+    background:#1a0000;
+    color:#ff0000;
+    padding:12px 20px;
+    border-radius:20px;
+    border:1px solid #ff0000;
+    opacity:0;
+    transition:.4s;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+    <div class="title">🎯 AimSens | VIZX 🩸</div>
+
+    <div class="option"><span>🎯 SENSIBILIDAD</span><div class="switch"></div></div>
+    <div class="option"><span>🔥 RENDIMIENTO</span><div class="switch"></div></div>
+    <div class="option"><span>⚡ OPTIMIZACIÓN</span><div class="switch"></div></div>
+    <div class="option"><span>💀 HEATRICK</span><div class="switch"></div></div>
+    <div class="option"><span>🛡️ NO-RECOIL</span><div class="switch"></div></div>
+    <div class="option"><span>💎 XIT VIZX</span><div class="switch"></div></div>
+    <div class="option"><span>🎯 AIM-PRECISIÓN</span><div class="switch"></div></div>
+    <div class="option"><span>⚡ ESTABILIDAD PRO</span><div class="switch"></div></div>
+
+    <div class="slider-box">
+        <label id="sliderValue">CONTROL: [ 44% ]</label>
+        <input type="range" min="0" max="88" value="44"
+        oninput="updateSlider(this)">
+    </div>
+
+    <button class="main-btn" onclick="activar()">✅ ACTIVAR</button>
+    <button class="off-btn" onclick="desactivar()">❌ DESACTIVAR</button>
+    <button class="code-btn" onclick="openCodes()">💬 CREADOR DEL AUXILIO</button>
+</div>
+
+<div id="toast" class="toast">ACTIVADO</div>
+
+<script>
+const switches=document.querySelectorAll('.switch');
+const toast=document.getElementById("toast");
+
+switches.forEach(sw=>{
+    sw.onclick=()=>sw.classList.toggle('active');
+});
+
+function activar(){
+    switches.forEach(sw=>sw.classList.add('active'));
+    showToast("ACTIVADO ✅");
+}
+
+function desactivar(){
+    switches.forEach(sw=>sw.classList.remove('active'));
+    showToast("DESACTIVADO ❌");
+}
+
+function updateSlider(slider){
+    document.getElementById("sliderValue").innerText=
+        "CONTROL: [ "+slider.value+"% ]";
+}
+
+function showToast(text){
+    toast.innerText=text;
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"),1500);
+}
+
+function openCodes(){
+    window.open("https://whatsapp.com/channel/0029VbBgQ4ME50UguH0FKr1R","_blank");
+}
+</script>
+
+<!--
+ZONA OCULTA – SOLO HTML
+CREADOR DEL AUXILIO | VIZX STORE
+
+aim.lock=true
+no.recoil-stable
+aim.bot-precision
+head.trick=active
+aim.precision=high
+stability.pro-enabled
+aim.lock=true
+no.recoil-stable
+aim.bot-precision
+head.trick=active
+aim.precision=high
+stability.pro-enabled
+touch.sensitivity.ultra
+touch.response.fast
+touch.calibration.auto
+fps.max-lock
+fps.stability-high
+cpu.boost=true
+gpu.boost=true
+no.recoil-stable = true
+no.recoil-ultra = true
+no.recoil-max = true
+no.recoil-fast = true
+no.recoil-linear = true
+no.recoil-soft = true
+no.recoil-smooth = true
+no.recoil-adaptive = true
+no.recoil-calibrated = true
+no.recoil-edge = 0.05
+no.recoil-center = 0.03
+no.recoil-flick = 1.2
+no.recoil-swipe = 1.1
+no.recoil-tap = 1.0
+no.recoil-hold = 0.9
+no.recoil-release = 1.0
+no.recoil-jitter = 0.02
+no.recoil-micro = 0.01
+no.recoil-multi = 1
+no.recoil-hover = true
+no.recoil-stylus = true
+no.recoil-pressure = 1.4
+no.recoil-tilt = 45
+no.recoil-button = true
+no.recoil-eraser = true
+no.recoil-distance = 0.05
+no.recoil-multi-finger = 5
+no.recoil-tap-hold = 0.2
+no.recoil-swipe-velocity = 1.5
+no.recoil-gesture = true
+no.recoil-latency = 3
+no.recoil-response = true
+no.recoil-sensitivity = 1.2
+no.recoil-precision-max = true
+no.recoil-path-stable = true
+no.recoil-drag-smooth = true
+no.recoil-flick-ultra = true
+no.recoil-release-blend = 0.95
+no.recoil-acceleration-linear = true
+no.recoil-deceleration-soft = true
+no.recoil-jitter-min = 0.01
+no.recoil-input-blend = 0.9
+no.recoil-multi-touch = true
+no.recoil-hover-refine = true
+no.recoil-stylus-calibration = true
+no.recoil-tap-hold-tune = 0.18
+no.recoil-swipe-refine = 0.95
+no.recoil-flick-refine = 1.1
+no.recoil-drag-refine = 0.98
+no.recoil-response-sync = true
+no.recoil-jitter-guard = true
+no.recoil-cpu-boost = true
+no.recoil-gpu-boost = true
+no.recoil-ram-optimize = true
+no.recoil-fps-max = 144
+no.recoil-display-refresh = 120
+no.recoil-game-mode = true
+no.recoil-network-sync = true
+no.recoil-system-cache = true
+no.recoil-thermal-safe = true
+no.recoil-background-process = true
+no.recoil-optimization-max = true
+no.recoil-aim-lock = true
+no.recoil-aim-bot = true
+no.recoil-aim-headshot = true
+no.recoil-aim-micro = 0.02
+no.recoil-aim-path = true
+no.recoil-aim-drag = 0.95
+no.recoil-aim-swipe = 1.1
+no.recoil-aim-flick = 1.2
+no.recoil-aim-tap = 1.0
+no.recoil-aim-long-press = 0.45
+no.recoil-aim-release = 1.0
+no.recoil-aim-jitter = 0.01
+no.recoil-aim-input = true
+no.recoil-aim-hover = true
+no.recoil-aim-stylus = true
+no.recoil-aim-multi = 5
+no.recoil-aim-calibration = true
+no.recoil-aim-tuning = true
+no.recoil-aim-response = true
+no.recoil-aim-sync = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.98
+no.recoil-aim-stable = true
+no.recoil-aim-precision = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-sensitivity-stylus = true
+no.recoil-calibration-auto = true
+no.recoil-calibration-micro = 0.02
+no.recoil-calibration-surface = true
+no.recoil-calibration-motion = true
+no.recoil-calibration-drift = 0.01
+no.recoil-calibration-path = true
+no.recoil-calibration-edge = 0.05
+no.recoil-calibration-center = 0.03
+no.recoil-calibration-multi-finger = 5
+no.recoil-calibration-hover = true
+no.recoil-calibration-stylus = true
+no.recoil-calibration-tap-hold = 0.15
+no.recoil-calibration-swipe = 0.95
+no.recoil-calibration-flick = 1.2
+no.recoil-calibration-drag = 0.98
+no.recoil-response-latency = 3
+no.recoil-response-filter = kalman
+no.recoil-response-smoothing = adaptive
+no.recoil-response-stabilization = true
+no.recoil-response-jitter = 0.01
+no.recoil-response-noise = adaptive
+no.recoil-response-max-velocity = 2.0
+no.recoil-response-min-velocity = 0.1
+no.recoil-response-curve = custom_exp
+no.recoil-response-deadzone = 0.25
+no.recoil-response-multi-touch = true
+no.recoil-response-gesture = true
+no.recoil-response-double-tap = 0.2
+no.recoil-response-swipe-threshold = 0.25
+no.recoil-response-flick-velocity = 1.5
+no.recoil-response-hover-detection = true
+no.recoil-response-stylus-mode = true
+no.recoil-response-stylus-pressure = 2000
+no.recoil-response-stylus-tilt = 50
+no.recoil-response-stylus-button = true
+no.recoil-response-stylus-eraser = true
+no.recoil-cpu-performance = true
+no.recoil-cpu-core-priority = high
+no.recoil-cpu-cache = aggressive
+no.recoil-cpu-latency = min
+no.recoil-cpu-idle = reduce
+no.recoil-cpu-background-limit = strict
+no.recoil-cpu-thread-sync = true
+no.recoil-cpu-stability = max
+no.recoil-gpu-performance = true
+no.recoil-gpu-render-priority = high
+no.recoil-gpu-frame-queue = short
+no.recoil-gpu-shader-cache = true
+no.recoil-gpu-texture-cache = optimized
+no.recoil-gpu-pipeline = low
+no.recoil-gpu-memory = optimized
+no.recoil-gpu-latency = min
+no.recoil-gpu-stability = high
+no.recoil-ram-optimize = aggressive
+no.recoil-ram-cache-trim = true
+no.recoil-ram-background-limit = strict
+no.recoil-ram-foreground-reserve = true
+no.recoil-ram-latency = low
+no.recoil-ram-stability = high
+no.recoil-ram-multi-task = true
+no.recoil-storage-io-boost = true
+no.recoil-storage-read = max
+no.recoil-storage-write = max
+no.recoil-storage-trim = true
+no.recoil-storage-cache = optimized
+no.recoil-storage-latency = min
+no.recoil-storage-stability = high
+no.recoil-fps-stability = true
+no.recoil-fps-frame-pacing = true
+no.recoil-fps-drop-protection = true
+no.recoil-fps-render-priority = high
+no.recoil-fps-consistency = true
+no.recoil-fps-input-sync = true
+no.recoil-fps-network-sync = true
+no.recoil-fps-frame-smooth = true
+no.recoil-fps-refresh = 120
+no.recoil-fps-frame-blend = true
+no.recoil-fps-frame-guard = true
+no.recoil-fps-stutter-reduction = true
+no.recoil-display-refresh-adaptive = true
+no.recoil-display-refresh-lock = true
+no.recoil-display-vsync = adaptive
+no.recoil-display-pipeline = low
+no.recoil-display-scanout = optimized
+no.recoil-display-buffer = triple
+no.recoil-display-compositor = optimized
+no.recoil-display-frame-guard = true
+no.recoil-display-motion = smooth
+no.recoil-display-frame-balance = true
+no.recoil-display-touch-sync = true
+no.recoil-display-thread-priority = high
+no.recoil-display-animations = reduced
+no.recoil-display-stability = max
+no.recoil-game-performance-mode = true
+no.recoil-game-background-limit = strict
+no.recoil-game-cpu-boost = true
+no.recoil-game-gpu-boost = true
+no.recoil-game-frame-stability = true
+no.recoil-game-input-sync = true
+no.recoil-game-network-boost = true
+no.recoil-game-thermal-balance = safe
+no.recoil-game-overlay-disable = true
+no.recoil-game-audio-latency = min
+no.recoil-game-ready = true
+no.recoil-network-low-latency = true
+no.recoil-network-packet-priority = high
+no.recoil-network-buffer = optimized
+no.recoil-network-jitter = guard
+no.recoil-network-sync = true
+no.recoil-network-stability = max
+no.recoil-system-cache-clean = true
+no.recoil-system-cache-priority = high
+no.recoil-system-cache-stability = max
+no.recoil-system-cache-latency = min
+no.recoil-system-cache-sync = true
+no.recoil-thermal-smart = true
+no.recoil-thermal-cpu-limit = raise
+no.recoil-thermal-gpu-limit = raise
+no.recoil-thermal-monitor = true
+no.recoil-background-process-limit = strict
+no.recoil-background-process-cleanup = true
+no.recoil-background-process-priority = high
+no.recoil-background-process-freeze = true
+no.recoil-optimization-full-enable = true
+no.recoil-optimization-performance = max
+no.recoil-optimization-fps-stable = true
+no.recoil-optimization-sensitivity = ultra
+no.recoil-optimization-stability = max
+no.recoil-optimization-cpu-gpu-ram = true
+no.recoil-optimization-network = true
+no.recoil-optimization-display = true
+no.recoil-optimization-game-mode = true
+no.recoil-aim-lock = true
+no.recoil-aim-bot = true
+no.recoil-aim-headshot = true
+no.recoil-aim-precision = high
+no.recoil-aim-flick = 1.5
+no.recoil-aim-swipe = 1.3
+no.recoil-aim-drag = 1.0
+no.recoil-aim-tap = 1.0
+no.recoil-aim-long-press = 0.45
+no.recoil-aim-release = 0.95
+no.recoil-aim-jitter = 0.01
+no.recoil-aim-input = true
+no.recoil-aim-hover = true
+no.recoil-aim-stylus = true
+no.recoil-aim-multi = 5
+no.recoil-aim-calibration = true
+no.recoil-aim-tuning = true
+no.recoil-aim-response = true
+no.recoil-aim-sync = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.98
+no.recoil-aim-stable = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-sensitivity-stylus = true
+no.recoil-calibration-auto = true
+no.recoil-calibration-micro = 0.02
+no.recoil-calibration-surface = true
+no.recoil-calibration-motion = true
+no.recoil-calibration-drift = 0.01
+no.recoil-calibration-path = true
+no.recoil-calibration-edge = 0.05
+no.recoil-calibration-center = 0.03
+no.recoil-calibration-multi-finger = 5
+no.recoil-calibration-hover = true
+no.recoil-calibration-stylus = true
+no.recoil-calibration-tap-hold = 0.15
+no.recoil-calibration-swipe = 0.95
+no.recoil-calibration-flick = 1.2
+no.recoil-calibration-drag = 0.98
+no.recoil-response-latency = 3
+no.recoil-response-filter = kalman
+no.recoil-response-smoothing = adaptive
+no.recoil-response-stabilization = true
+no.recoil-response-jitter = 0.01
+no.recoil-response-noise = adaptive
+no.recoil-response-max-velocity = 2.0
+no.recoil-response-min-velocity = 0.1
+no.recoil-response-curve = custom_exp
+no.recoil-response-deadzone = 0.25
+no.recoil-response-multi-touch = true
+no.recoil-response-gesture = true
+no.recoil-response-double-tap = 0.2
+no.recoil-response-swipe-threshold = 0.25
+no.recoil-response-flick-velocity = 1.5
+no.recoil-response-hover-detection = true
+no.recoil-response-stylus-mode = true
+no.recoil-response-stylus-pressure = 2000
+no.recoil-response-stylus-tilt = 50
+no.recoil-response-stylus-button = true
+no.recoil-response-stylus-eraser = true
+no.recoil-aim-speed = 1.4
+no.recoil-aim-accuracy = high
+no.recoil-aim-stability = max
+no.recoil-aim-sensitivity = 1.3
+no.recoil-aim-response = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.97
+no.recoil-aim-stable = true
+no.recoil-aim-precision = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-aim-speed = 1.4
+no.recoil-aim-accuracy = high
+no.recoil-aim-stability = max
+no.recoil-aim-sensitivity = 1.3
+no.recoil-aim-response = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.97
+no.recoil-aim-stable = true
+no.recoil-aim-precision = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-calibration-auto = true
+no.recoil-calibration-micro = 0.02
+no.recoil-calibration-surface = true
+no.recoil-calibration-motion = true
+no.recoil-calibration-drift = 0.01
+no.recoil-calibration-path = true
+no.recoil-calibration-edge = 0.05
+no.recoil-calibration-center = 0.03
+no.recoil-calibration-multi-finger = 5
+no.recoil-calibration-hover = true
+no.recoil-calibration-stylus = true
+no.recoil-calibration-tap-hold = 0.15
+no.recoil-calibration-swipe = 0.95
+no.recoil-calibration-flick = 1.2
+no.recoil-calibration-drag = 0.98
+no.recoil-response-latency = 3
+no.recoil-response-filter = kalman
+no.recoil-response-smoothing = adaptive
+no.recoil-response-stabilization = true
+no.recoil-response-jitter = 0.01
+no.recoil-response-noise = adaptive
+no.recoil-response-max-velocity = 2.0
+no.recoil-response-min-velocity = 0.1
+no.recoil-response-curve = custom_exp
+no.recoil-response-deadzone = 0.25
+no.recoil-response-multi-touch = true
+no.recoil-response-gesture = true
+no.recoil-response-double-tap = 0.2
+no.recoil-response-swipe-threshold = 0.25
+no.recoil-response-flick-velocity = 1.5
+no.recoil-response-hover-detection = true
+no.recoil-response-stylus-mode = true
+no.recoil-response-stylus-pressure = 2000
+no.recoil-response-stylus-tilt = 50
+no.recoil-response-stylus-button = true
+no.recoil-response-stylus-eraser = true
+no.recoil-cpu-performance = true
+no.recoil-cpu-core-priority = high
+no.recoil-cpu-cache = aggressive
+no.recoil-cpu-latency = min
+no.recoil-cpu-idle = reduce
+no.recoil-cpu-background-limit = strict
+no.recoil-cpu-thread-sync = true
+no.recoil-cpu-stability = max
+no.recoil-gpu-performance = true
+no.recoil-gpu-render-priority = high
+no.recoil-gpu-frame-queue = short
+no.recoil-gpu-shader-cache = true
+no.recoil-gpu-texture-cache = optimized
+no.recoil-gpu-pipeline = low
+no.recoil-gpu-memory = optimized
+no.recoil-gpu-latency = min
+no.recoil-gpu-stability = high
+no.recoil-ram-optimize = aggressive
+no.recoil-ram-cache-trim = true
+no.recoil-ram-background-limit = strict
+no.recoil-ram-foreground-reserve = true
+no.recoil-ram-latency = low
+no.recoil-ram-stability = high
+no.recoil-ram-multi-task = true
+no.recoil-storage-io-boost = true
+no.recoil-storage-read = max
+no.recoil-storage-write = max
+no.recoil-storage-trim = true
+no.recoil-storage-cache = optimized
+no.recoil-storage-latency = min
+no.recoil-storage-stability = high
+no.recoil-optimization-full = true
+no.recoil-optimization-cpu = max
+no.recoil-optimization-gpu = max
+no.recoil-optimization-ram = max
+no.recoil-optimization-fps = 144
+no.recoil-optimization-refresh = 120
+no.recoil-optimization-display = high
+no.recoil-optimization-touch = ultra
+no.recoil-optimization-input = fast
+no.recoil-optimization-sensitivity = ultra
+no.recoil-optimization-anti-jitter = true
+no.recoil-optimization-thermal = safe
+no.recoil-optimization-network = low-latency
+no.recoil-optimization-background-limit = strict
+no.recoil-optimization-multi-task = optimized
+no.recoil-optimization-frame-blend = true
+no.recoil-optimization-frame-sync = adaptive
+no.recoil-optimization-cache = aggressive
+no.recoil-optimization-io = max
+no.recoil-optimization-storage = optimized
+no.recoil-optimization-pipeline = low
+no.recoil-optimization-thread-priority = high
+no.recoil-optimization-system-load = reduced
+no.recoil-optimization-game-mode = enabled
+no.recoil-optimization-gesture-sync = true
+no.recoil-optimization-stylus = true
+no.recoil-optimization-hover = true
+no.recoil-optimization-touch-response = ultra
+no.recoil-optimization-latency = 2ms
+no.recoil-optimization-flick = 1.5
+no.recoil-optimization-swipe = 1.3
+no.recoil-optimization-tap = 1.0
+no.recoil-optimization-long-press = 0.45
+no.recoil-optimization-drag = 0.98
+no.recoil-optimization-edge = 0.05
+no.recoil-optimization-center = 0.03
+no.recoil-optimization-micro = 0.01
+no.recoil-optimization-multi-touch = true
+no.recoil-optimization-hover-refine = true
+no.recoil-optimization-stylus-mode = true
+no.recoil-optimization-stylus-pressure = 2000
+no.recoil-optimization-stylus-tilt = 50
+no.recoil-optimization-stylus-button = true
+no.recoil-optimization-stylus-eraser = true
+no.recoil-optimization-hover-distance = 10
+no.recoil-optimization-multi-finger-max = 7
+no.recoil-optimization-tap-hold-delay = 0.15
+no.recoil-optimization-swipe-velocity = 1.4
+no.recoil-optimization-gesture-sensitivity = high
+no.recoil-optimization-latency-target = 2
+no.recoil-optimization-calibration-auto = true
+no.recoil-optimization-calibration-micro = 0.02
+no.recoil-optimization-calibration-surface = true
+no.recoil-optimization-calibration-motion = true
+no.recoil-optimization-calibration-drift = 0.01
+no.recoil-optimization-calibration-path = true
+no.recoil-optimization-calibration-edge = 0.05
+no.recoil-optimization-calibration-center = 0.03
+no.recoil-optimization-calibration-multi-finger = 5
+no.recoil-optimization-calibration-hover = true
+no.recoil-optimization-calibration-stylus = true
+no.recoil-optimization-calibration-tap-hold = 0.15
+no.recoil-optimization-calibration-swipe = 0.95
+no.recoil-optimization-calibration-flick = 1.2
+no.recoil-optimization-calibration-drag = 0.98
+no.recoil-optimization-response-latency = 3
+no.recoil-optimization-response-filter = kalman
+no.recoil-optimization-response-smoothing = adaptive
+no.recoil-optimization-response-stabilization = true
+no.recoil-optimization-response-jitter = 0.01
+no.recoil-optimization-response-noise = adaptive
+no.recoil-optimization-response-max-velocity = 2.0
+no.recoil-optimization-response-min-velocity = 0.1
+no.recoil-optimization-response-curve = custom_exp
+no.recoil-optimization-response-deadzone = 0.25
+no.recoil-optimization-response-multi-touch = true
+no.recoil-optimization-response-gesture = true
+no.recoil-optimization-response-double-tap = 0.2
+no.recoil-optimization-response-swipe-threshold = 0.25
+no.recoil-optimization-response-flick-velocity = 1.5
+no.recoil-optimization-response-hover-detection = true
+no.recoil-optimization-response-stylus-mode = true
+no.recoil-optimization-response-stylus-pressure = 2000
+no.recoil-optimization-response-stylus-tilt = 50
+no.recoil-optimization-response-stylus-button = true
+no.recoil-optimization-response-stylus-eraser = true
+no.recoil-optimization-cpu-performance = true
+no.recoil-optimization-cpu-core-priority = high
+no.recoil-optimization-cpu-cache = aggressive
+no.recoil-optimization-cpu-latency = min
+no.recoil-optimization-cpu-idle = reduce
+no.recoil-optimization-cpu-background-limit = strict
+no.recoil-optimization-cpu-thread-sync = true
+no.recoil-optimization-cpu-stability = max
+no.recoil-display-refresh = 120
+no.recoil-display-frame-blend = true
+no.recoil-display-frame-guard = true
+no.recoil-display-motion-smooth = true
+no.recoil-display-frame-balance = true
+no.recoil-display-touch-sync = true
+no.recoil-display-thread-priority = high
+no.recoil-display-animations-reduce = true
+no.recoil-display-stability-max = true
+no.recoil-game-performance-mode = true
+no.recoil-game-background-limit = strict
+no.recoil-game-cpu-boost = true
+no.recoil-game-gpu-boost = true
+no.recoil-game-frame-stability = true
+no.recoil-game-input-sync = true
+no.recoil-game-network-boost = true
+no.recoil-game-thermal-balance = safe
+no.recoil-game-overlay-disable = true
+no.recoil-game-audio-latency = min
+no.recoil-game-ready = true
+no.recoil-network-low-latency = true
+no.recoil-network-packet-priority = high
+no.recoil-network-buffer = optimized
+no.recoil-network-jitter-guard = true
+no.recoil-network-sync-max = true
+no.recoil-network-stability-max = true
+no.recoil-system-cache-clean = true
+no.recoil-system-cache-priority = high
+no.recoil-system-cache-stability-max = true
+no.recoil-system-cache-latency-min = true
+no.recoil-system-cache-sync = true
+no.recoil-thermal-smart = true
+no.recoil-thermal-cpu-limit-raise = true
+no.recoil-thermal-gpu-limit-raise = true
+no.recoil-thermal-monitor = true
+no.recoil-background-process-limit-strict = true
+no.recoil-background-process-cleanup = true
+no.recoil-background-process-priority-high = true
+no.recoil-background-process-freeze = true
+no.recoil-optimization-full-enable = true
+no.recoil-optimization-performance-max = true
+no.recoil-optimization-fps-stable = true
+no.recoil-optimization-sensitivity-ultra = true
+no.recoil-optimization-stability-max = true
+no.recoil-optimization-cpu-gpu-ram = true
+no.recoil-optimization-network = true
+no.recoil-optimization-display = true
+no.recoil-optimization-game-mode = true
+no.recoil-aim-lock = true
+no.recoil-aim-bot = true
+no.recoil-aim-headshot = true
+no.recoil-aim-precision-high = true
+no.recoil-aim-flick = 1.5
+no.recoil-aim-swipe = 1.3
+no.recoil-aim-drag = 1.0
+no.recoil-aim-tap = 1.0
+no.recoil-aim-long-press = 0.45
+no.recoil-aim-release = 0.95
+no.recoil-aim-jitter = 0.01
+no.recoil-aim-input = true
+no.recoil-aim-hover = true
+no.recoil-aim-stylus = true
+no.recoil-aim-multi = 5
+no.recoil-aim-calibration = true
+no.recoil-aim-tuning = true
+no.recoil-aim-response = true
+no.recoil-aim-sync = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.97
+no.recoil-aim-stable = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-calibration-auto = true
+no.recoil-calibration-micro = 0.02
+no.recoil-calibration-surface = true
+no.recoil-calibration-motion = true
+no.recoil-calibration-drift = 0.01
+no.recoil-calibration-path = true
+no.recoil-calibration-edge = 0.05
+no.recoil-calibration-center = 0.03
+no.recoil-calibration-multi-finger = 5
+no.recoil-calibration-hover = true
+no.recoil-calibration-stylus = true
+no.recoil-calibration-tap-hold = 0.15
+no.recoil-calibration-swipe = 0.95
+no.recoil-calibration-flick = 1.2
+no.recoil-calibration-drag = 0.98
+no.recoil-response-latency = 3
+no.recoil-response-filter = kalman
+no.recoil-response-smoothing = adaptive
+no.recoil-response-stabilization = true
+no.recoil-response-jitter = 0.01
+no.recoil-response-noise = adaptive
+no.recoil-response-max-velocity = 2.0
+no.recoil-response-min-velocity = 0.1
+no.recoil-response-curve = custom_exp
+no.recoil-response-deadzone = 0.25
+no.recoil-response-multi-touch = true
+no.recoil-response-gesture = true
+no.recoil-response-double-tap = 0.2
+no.recoil-response-swipe-threshold = 0.25
+no.recoil-response-flick-velocity = 1.5
+no.recoil-response-hover-detection = true
+no.recoil-response-stylus-mode = true
+no.recoil-response-stylus-pressure = 2000
+no.recoil-response-stylus-tilt = 50
+no.recoil-response-stylus-button = true
+no.recoil-response-stylus-eraser = true
+no.recoil-cpu-performance = true
+no.recoil-cpu-core-priority = high
+no.recoil-cpu-cache = aggressive
+no.recoil-cpu-latency = min
+no.recoil-cpu-idle = reduce
+no.recoil-cpu-background-limit = strict
+no.recoil-cpu-thread-sync = true
+no.recoil-cpu-stability = max
+no.recoil-gpu-performance = true
+no.recoil-gpu-render-priority = high
+no.recoil-gpu-frame-queue = short
+no.recoil-gpu-shader-cache = true
+no.recoil-gpu-texture-cache = optimized
+no.recoil-gpu-pipeline = low
+no.recoil-gpu-memory = optimized
+no.recoil-gpu-latency = min
+no.recoil-gpu-stability = high
+no.recoil-ram-optimize = aggressive
+no.recoil-ram-cache-trim = true
+no.recoil-ram-background-limit = strict
+no.recoil-ram-foreground-reserve = true
+no.recoil-ram-latency = low
+no.recoil-ram-stability = high
+no.recoil-ram-multi-task = true
+no.recoil-storage-io-boost = true
+no.recoil-storage-read = max
+no.recoil-storage-write = max
+no.recoil-storage-trim = true
+no.recoil-storage-cache = optimized
+no.recoil-storage-latency = min
+no.recoil-storage-stability = high
+no.recoil-display-refresh = 120
+no.recoil-display-frame-blend = true
+no.recoil-display-frame-guard = true
+no.recoil-display-motion-smooth = true
+no.recoil-display-frame-balance = true
+no.recoil-display-touch-sync = true
+no.recoil-display-thread-priority = high
+no.recoil-display-animations-reduce = true
+no.recoil-display-stability-max = true
+no.recoil-game-performance-mode = true
+no.recoil-game-background-limit = strict
+no.recoil-game-cpu-boost = true
+no.recoil-game-gpu-boost = true
+no.recoil-game-frame-stability = true
+no.recoil-game-input-sync = true
+no.recoil-game-network-boost = true
+no.recoil-game-thermal-balance = safe
+no.recoil-game-overlay-disable = true
+no.recoil-game-audio-latency = min
+no.recoil-game-ready = true
+no.recoil-network-low-latency = true
+no.recoil-network-packet-priority = high
+no.recoil-network-buffer = optimized
+no.recoil-network-jitter-guard = true
+no.recoil-network-sync-max = true
+no.recoil-network-stability-max = true
+no.recoil-system-cache-clean = true
+no.recoil-system-cache-priority = high
+no.recoil-system-cache-stability-max = true
+no.recoil-system-cache-latency-min = true
+no.recoil-system-cache-sync = true
+no.recoil-thermal-smart = true
+no.recoil-thermal-cpu-limit-raise = true
+no.recoil-thermal-gpu-limit-raise = true
+no.recoil-thermal-monitor = true
+no.recoil-background-process-limit-strict = true
+no.recoil-background-process-cleanup = true
+no.recoil-background-process-priority-high = true
+no.recoil-background-process-freeze = true
+no.recoil-optimization-full-enable = true
+no.recoil-optimization-performance-max = true
+no.recoil-optimization-fps-stable = true
+no.recoil-optimization-sensitivity-ultra = true
+no.recoil-optimization-stability-max = true
+no.recoil-optimization-cpu-gpu-ram = true
+no.recoil-optimization-network = true
+no.recoil-optimization-display = true
+no.recoil-optimization-game-mode = true
+no.recoil-aim-lock = true
+no.recoil-aim-bot = true
+no.recoil-aim-headshot = true
+no.recoil-aim-precision-high = true
+no.recoil-aim-flick = 1.5
+no.recoil-aim-swipe = 1.3
+no.recoil-aim-drag = 1.0
+no.recoil-aim-tap = 1.0
+no.recoil-aim-long-press = 0.45
+no.recoil-aim-release = 0.95
+no.recoil-aim-jitter = 0.01
+no.recoil-aim-input = true
+no.recoil-aim-hover = true
+no.recoil-aim-stylus = true
+no.recoil-aim-multi = 5
+no.recoil-aim-calibration = true
+no.recoil-aim-tuning = true
+no.recoil-aim-response = true
+no.recoil-aim-sync = true
+no.recoil-aim-linear = true
+no.recoil-aim-soft = true
+no.recoil-aim-ultra = true
+no.recoil-aim-high = true
+no.recoil-aim-max = true
+no.recoil-aim-smooth = 0.97
+no.recoil-aim-stable = true
+no.recoil-aim-predict = true
+no.recoil-aim-refine = 0.95
+no.recoil-aim-edge = 0.05
+no.recoil-aim-center = 0.03
+no.recoil-aim-flick-speed = 1.5
+no.recoil-aim-drag-speed = 1.2
+no.recoil-aim-path-linear = true
+no.recoil-aim-release-smooth = 0.98
+no.recoil-aim-acceleration-linear = true
+no.recoil-aim-deceleration-soft = true
+no.recoil-aim-jitter-min = 0.01
+no.recoil-aim-input-blend = 0.9
+no.recoil-aim-multi-touch = true
+no.recoil-aim-hover-refine = true
+no.recoil-aim-stylus-mode = true
+no.recoil-aim-stylus-pressure = 2000
+no.recoil-aim-stylus-tilt = 50
+no.recoil-aim-stylus-button = true
+no.recoil-aim-stylus-eraser = true
+no.recoil-aim-hover-distance = 10
+no.recoil-aim-multi-finger-max = 7
+no.recoil-aim-tap-hold-delay = 0.15
+no.recoil-aim-swipe-velocity = 1.4
+no.recoil-aim-gesture-sensitivity = high
+no.recoil-aim-latency-target = 2
+no.recoil-sensitivity-ultra = true
+no.recoil-sensitivity-high = true
+no.recoil-sensitivity-precise = true
+no.recoil-sensitivity-stable = true
+no.recoil-sensitivity-flick = true
+no.recoil-sensitivity-swipe = true
+no.recoil-sensitivity-tap = true
+no.recoil-sensitivity-long-press = true
+no.recoil-sensitivity-drag = true
+no.recoil-sensitivity-edge = 0.05
+no.recoil-sensitivity-center = 0.03
+no.recoil-sensitivity-micro = 0.01
+no.recoil-sensitivity-multi-touch = true
+no.recoil-calibration-auto = true
+no.recoil-calibration-micro = 0.02
+no.recoil-calibration-surface = true
+no.recoil-calibration-motion = true
+no.recoil-calibration-drift = 0.01
+no.recoil-calibration-path = true
+no.recoil-calibration-edge = 0.05
+no.recoil-calibration-center = 0.03
+no.recoil-calibration-multi-finger = 5
+no.recoil-calibration-hover = true
+no.recoil-calibration-stylus = true
+no.recoil-calibration-tap-hold = 0.15
+no.recoil-calibration-swipe = 0.95
+no.recoil-calibration-flick = 1.2
+no.recoil-calibration-drag = 0.98
+no.recoil-response-latency = 3
+no.recoil-response-filter = kalman
+no.recoil-response-smoothing = adaptive
+no.recoil-response-stabilization = true
+no.recoil-response-jitter = 0.01
+no.recoil-response-noise = adaptive
+no.recoil-response-max-velocity = 2.0
+no.recoil-response-min-velocity = 0.1
+no.recoil-response-curve = custom_exp
+no.recoil-response-deadzone = 0.25
+no.recoil-response-multi-touch = true
+no.recoil-response-gesture = true
+no.recoil-response-double-tap = 0.2
+no.recoil-response-swipe-threshold = 0.25
+no.recoil-response-flick-velocity = 1.5
+no.recoil-response-hover-detection = true
+no.recoil-response-stylus-mode = true
+no.recoil-response-stylus-pressure = 2000
+no.recoil-response-stylus-tilt = 50
+no.recoil-response-stylus-button = true
+no.recoil-response-stylus-eraser = true
+no.recoil-cpu-performance = true
+no.recoil-cpu-core-priority = high
+no.recoil-cpu-cache = aggressive
+no.recoil-cpu-latency = min
+no.recoil-cpu-idle = reduce
+no.recoil-cpu-background-limit = strict
+no.recoil-cpu-thread-sync = true
+no.recoil-cpu-stability = max
+no.recoil-gpu-performance = true
+no.recoil-gpu-render-priority = high
+no.recoil-gpu-frame-queue = short
+no.recoil-gpu-shader-cache = true
+no.recoil-gpu-texture-cache = optimized
+no.recoil-gpu-pipeline = low
+no.recoil-gpu-memory = optimized
+no.recoil-gpu-latency = min
+no.recoil-gpu-stability = high
+no.recoil-ram-optimize = aggressive
+no.recoil-ram-cache-trim = true
+no.recoil-ram-background-limit = strict
+no.recoil-ram-foreground-reserve = true
+no.recoil-ram-latency = low
+no.recoil-ram-stability = high
+no.recoil-ram-multi-task = true
+no.recoil-storage-io-boost = true
+no.recoil-storage-read = max
+no.recoil-storage-write = max
+no.recoil-storage-trim = true
+no.recoil-storage-cache = optimized
+no.recoil-storage-latency = min
+no.recoil-storage-stability = high
+no.recoil-display-refresh = 120
+no.recoil-display-frame-blend = true
+no.recoil-display-frame-guard = true
+no.recoil-display-motion-smooth = true
+no.recoil-display-frame-balance = true
+no.recoil-display-touch-sync = true
+no.recoil-display-thread-priority = high
+no.recoil-display-animations-reduce = true
+no.recoil-display-stability-max = true
+no.recoil-game-performance-mode = true
+no.recoil-game-background-limit = strict
+no.recoil-game-cpu-boost = true
+no.recoil-game-gpu-boost = true
+no.recoil-game-frame-stability = true
+no.recoil-game-input-sync = true
+no.recoil-game-network-boost = true
+no.recoil-game-thermal-balance = safe
+no.recoil-game-overlay-disable = true
+no.recoil-game-audio-latency = min
+no.recoil-game-ready = true
+no.recoil-network-low-latency = true
+no.recoil-network-packet-priority = high
+no.recoil-network-buffer = optimized
+no.recoil-network-jitter-guard = true
+no.recoil-network-sync-max = true
+no.recoil-network-stability-max = true
+no.recoil-system-cache-clean = true
+no.recoil-system-cache-priority = high
+no.recoil-system-cache-stability-max = true
+no.recoil-system-cache-latency-min = true
+no.recoil-system-cache-sync = true
+no.recoil-thermal-smart = true
+no.recoil-thermal-cpu-limit-raise = true
+no.recoil-thermal-gpu-limit-raise = true
+no.recoil-thermal-monitor = true
+no.recoil-background-process-limit-strict = true
+no.recoil-background-process-cleanup = true
+no.recoil-background-process-priority-high = true
+no.recoil-background-process-freeze = true
+no.recoil-optimization-full-enable = true
+no.recoil-optimization-performance-max = true
+no.recoil-optimization-fps-stable = true
+no.recoil-optimization-sensitivity-ultra = true
+no.recoil-optimization-stability-max = true
+no.recoil-optimization-cpu-gpu-ram = true
+no.recoil-optimization-network = true
+no.recoil-optimization-display = true
+no.recoil-optimization-game-mode = true
+no.recoil-optimization-gesture-sync = true
+no.recoil-optimization-hover = true
+no.recoil-optimization-touch-response = ultra
+no.recoil-optimization-latency = 2ms
+no.recoil-optimization-flick = 1.5
+no.recoil-optimization-swipe = 1.3
+no.recoil-optimization-tap = 1.0
+no.recoil-optimization-long-press = 0.45
+no.recoil-optimization-drag = 0.98
+no.recoil-optimization-edge = 0.05
+no.recoil-optimization-center = 0.03
+no.recoil-optimization-micro = 0.01
+no.recoil-optimization-multi-touch = true
+no.recoil-optimization-hover-refine = true
+no.recoil-optimization-stylus-mode = true
+no.recoil-optimization-stylus-pressure = 2000
+no.recoil-optimization-stylus-tilt = 50
+no.recoil-optimization-stylus-button = true
+no.recoil-optimization-stylus-eraser = true
+no.recoil.lock = true
+no.recoil.stable = true
+no.recoil.bot_precision = high
+no.recoil.headshot_trick = active
+no.recoil.aim_precision = high
+no.recoil.stability_pro = true
+no.recoil.sensitivity_ultra = true
+no.recoil.sensitivity_high = true
+no.recoil.sensitivity_precise = true
+no.recoil.sensitivity_stable = true
+no.recoil.sensitivity_flick = true
+no.recoil.sensitivity_swipe = true
+no.recoil.sensitivity_tap = true
+no.recoil.sensitivity_long_press = true
+no.recoil.sensitivity_drag = true
+no.recoil.sensitivity_edge = 0.05
+no.recoil.sensitivity_center = 0.03
+no.recoil.sensitivity_micro = 0.01
+no.recoil.sensitivity_multi_touch = true
+no.recoil.calibration_auto = true
+no.recoil.calibration_micro = 0.02
+no.recoil.calibration_surface = true
+no.recoil.calibration_motion = true
+no.recoil.calibration_drift = 0.01
+no.recoil.calibration_path = true
+no.recoil.calibration_edge = 0.05
+no.recoil.calibration_center = 0.03
+no.recoil.calibration_multi_finger = 5
+no.recoil.calibration_hover = true
+no.recoil.calibration_stylus = true
+no.recoil.calibration_tap_hold = 0.15
+no.recoil.calibration_swipe = 0.95
+no.recoil.calibration_flick = 1.2
+no.recoil.calibration_drag = 0.98
+no.recoil.response_latency = 3
+no.recoil.response_filter = kalman
+no.recoil.response_smoothing = adaptive
+no.recoil.response_stabilization = true
+no.recoil.response_jitter = 0.01
+no.recoil.response_noise = adaptive
+no.recoil.response_max_velocity = 2.0
+no.recoil.response_min_velocity = 0.1
+no.recoil.response_curve = custom_exp
+no.recoil.response_deadzone = 0.25
+no.recoil.response_multi_touch = true
+no.recoil.response_gesture = true
+no.recoil.response_double_tap = 0.2
+no.recoil.response_swipe_threshold = 0.25
+no.recoil.response_flick_velocity = 1.5
+no.recoil.response_hover_detection = true
+no.recoil.response_stylus_mode = true
+no.recoil.response_stylus_pressure = 2000
+no.recoil.response_stylus_tilt = 50
+no.recoil.response_stylus_button = true
+no.recoil.response_stylus_eraser = true
+no.recoil.cpu_performance = true
+no.recoil.cpu_core_priority = high
+no.recoil.cpu_cache = aggressive
+no.recoil.cpu_latency = min
+no.recoil.cpu_idle = reduce
+no.recoil.cpu_background_limit = strict
+no.recoil.cpu_thread_sync = true
+no.recoil.cpu_stability = max
+no.recoil.gpu_performance = true
+no.recoil.gpu_render_priority = high
+no.recoil.gpu_frame_queue = short
+no.recoil.gpu_shader_cache = true
+no.recoil.gpu_texture_cache = optimized
+no.recoil.gpu_pipeline = low
+no.recoil.gpu_memory_optimized = true
+no.recoil.gpu_latency = min
+no.recoil.gpu_stability = high
+no.recoil.ram_optimize = aggressive
+no.recoil.ram_cache_trim = true
+no.recoil.ram_background_limit = strict
+no.recoil.ram_foreground_reserve = true
+no.recoil.ram_latency = low
+no.recoil.ram_stability = high
+no.recoil.ram_multi_task = true
+no.recoil.storage_io_boost = true
+no.recoil.storage_read_max = true
+no.recoil.storage_write_max = true
+no.recoil.storage_trim = true
+no.recoil.storage_cache_optimized = true
+no.recoil.storage_latency_min = true
+no.recoil.storage_stability_max = true
+no.recoil.display_refresh = 120
+no.recoil.display_frame_blend = true
+no.recoil.display_frame_guard = true
+no.recoil.display_motion_smooth = true
+no.recoil.display_frame_balance = true
+no.recoil.display_touch_sync = true
+no.recoil.display_thread_priority = high
+no.recoil.display_animation_reduce = true
+no.recoil.display_stability_max = true
+no.recoil.game_performance_mode = true
+no.recoil.game_background_limit = strict
+no.recoil.game_cpu_boost = true
+no.recoil.game_gpu_boost = true
+no.recoil.game_frame_stability = true
+no.recoil.game_input_sync = true
+no.recoil.game_network_boost = true
+no.recoil.game_thermal_balance = safe
+no.recoil.game_overlay_disable = true
+no.recoil.game_audio_latency = min
+no.recoil.game_ready = true
+no.recoil.network_low_latency = true
+no.recoil.network_packet_priority = high
+no.recoil.network_buffer = optimized
+no.recoil.network_jitter_guard = true
+no.recoil.network_sync_max = true
+no.recoil.network_stability_max = true
+no.recoil.system_cache_clean = true
+no.recoil.system_cache_priority = high
+no.recoil.system_cache_stability_max = true
+no.recoil.system_cache_latency_min = true
+no.recoil.system_cache_sync = true
+no.recoil.thermal_smart = true
+no.recoil.thermal_cpu_limit_raise = true
+no.recoil.thermal_gpu_limit_raise = true
+no.recoil.thermal_monitor = true
+no.recoil.background_process_limit_strict = true
+no.recoil.background_process_cleanup = true
+no.recoil.background_process_priority_high = true
+no.recoil.background_process_freeze = true
+no.recoil.optimization_full_enable = true
+no.recoil.optimization_performance_max = true
+no.recoil.optimization_fps_stable = true
+no.recoil.optimization_sensitivity_ultra = true
+no.recoil.optimization_stability_max = true
+no.recoil.optimization_cpu_gpu_ram = true
+no.recoil.optimization_network = true
+no.recoil.optimization_display = true
+no.recoil.optimization_game_mode = true
+no.recoil.optimization_gesture_sync = true
+no.recoil.optimization_hover = true
+no.recoil.optimization_touch_response = ultra
+no.recoil.optimization_latency = 2
+no.recoil.optimization_flick = 1.5
+no.recoil.optimization_swipe = 1.3
+no.recoil.optimization_tap = 1.0
+no.recoil.optimization_long_press = 0.45
+no.recoil.optimization_drag = 0.98
+no.recoil.optimization_edge = 0.05
+no.recoil.optimization_center = 0.03
+no.recoil.optimization_micro = 0.01
+no.recoil.optimization_multi_touch = true
+no.recoil.optimization_hover_refine = true
+no.recoil.optimization_stylus_mode = true
+no.recoil.optimization_stylus_pressure = 2000
+no.recoil.optimization_stylus_tilt = 50
+no.recoil.optimization_stylus_button = true
+no.recoil.optimization_stylus_eraser = true
+no.recoil.aim_sensitivity_ultra = true
+no.recoil.aim_sensitivity_high = true
+no.recoil.aim_sensitivity_precise = true
+no.recoil.aim_sensitivity_stable = true
+no.recoil.aim_sensitivity_flick = true
+no.recoil.aim_sensitivity_swipe = true
+no.recoil.aim_sensitivity_tap = true
+no.recoil.aim_sensitivity_long_press = true
+no.recoil.aim_sensitivity_drag = true
+no.recoil.aim_sensitivity_edge = 0.05
+no.recoil.aim_sensitivity_center = 0.03
+no.recoil.aim_sensitivity_micro = 0.01
+no.recoil.aim_sensitivity_multi_touch = true
+no.recoil.aim_calibration_auto = true
+no.recoil.aim_calibration_micro = 0.02
+no.recoil.aim_calibration_surface = true
+no.recoil.aim_calibration_motion = true
+no.recoil.aim_calibration_drift = 0.01
+no.recoil.aim_calibration_path = true
+no.recoil.aim_calibration_edge = 0.05
+no.recoil.aim_calibration_center = 0.03
+no.recoil.aim_calibration_multi_finger = 5
+no.recoil.aim_calibration_hover = true
+no.recoil.aim_calibration_stylus = true
+no.recoil.aim_calibration_tap_hold = 0.15
+no.recoil.aim_calibration_swipe = 0.95
+no.recoil.aim_calibration_flick = 1.2
+no.recoil.aim_calibration_drag = 0.98
+no.recoil.response_latency = 2
+no.recoil.response_filter = kalman
+no.recoil.response_smoothing = adaptive
+no.recoil.response_stabilization = true
+no.recoil.response_jitter_reduction = true
+no.recoil.response_noise_filter = adaptive
+no.recoil.response_max_velocity = 2.0
+no.recoil.response_min_velocity = 0.1
+no.recoil.response_curve = custom_exp
+no.recoil.response_deadzone = 0.25
+no.recoil.response_multi_touch = true
+no.recoil.response_gesture_timeout = 250
+no.recoil.response_double_tap_interval = 200
+no.recoil.response_swipe_threshold = 10
+no.recoil.response_flick_velocity = 1.5
+no.recoil.response_hover_detection = true
+no.recoil.response_stylus_mode = true
+no.recoil.response_stylus_pressure_max = 2000
+no.recoil.response_stylus_tilt_max = 50
+no.recoil.response_stylus_button_map = true
+no.recoil.response_stylus_eraser = true
+no.recoil.response_hover_distance = 10
+no.recoil.response_multi_finger_max = 7
+no.recoil.response_tap_hold_delay = 150
+no.recoil.response_swipe_velocity_curve = linear
+no.recoil.response_gesture_sensitivity = high
+no.recoil.response_latency_target = 2
+no.recoil.cpu_performance_mode = max
+no.recoil.cpu_core_priority = high
+no.recoil.cpu_cache_prefetch = aggressive
+no.recoil.cpu_latency_min = true
+no.recoil.cpu_idle_reduce = true
+no.recoil.cpu_background_limit = strict
+no.recoil.cpu_thread_sync = true
+no.recoil.cpu_stability_guard = max
+no.recoil.gpu_performance_mode = max
+no.recoil.gpu_render_priority = high
+no.recoil.gpu_frame_queue = short
+no.recoil.gpu_shader_cache = true
+no.recoil.gpu_texture_cache = optimized
+no.recoil.gpu_pipeline = low
+no.recoil.gpu_memory_optimized = true
+no.recoil.gpu_latency_min = true
+no.recoil.gpu_stability_max = true
+no.recoil.ram_optimize = aggressive
+no.recoil.ram_cache_trim = true
+no.recoil.ram_background_limit = strict
+no.recoil.ram_foreground_reserve = true
+no.recoil.ram_latency_min = true
+no.recoil.ram_stability_max = true
+no.recoil.ram_multi_task = true
+no.recoil.storage_io_boost = true
+no.recoil.storage_read_max = true
+no.recoil.storage_write_max = true
+no.recoil.storage_trim = true
+no.recoil.storage_cache_optimized = true
+no.recoil.storage_latency_min = true
+no.recoil.storage_stability_max = true
+no.recoil.display_refresh_rate = 120
+no.recoil.display_frame_blend = true
+no.recoil.display_frame_guard = true
+no.recoil.display_motion_smooth = true
+no.recoil.display_frame_balance = true
+no.recoil.display_touch_sync = true
+no.recoil.display_thread_priority = high
+no.recoil.display_animation_reduce = true
+no.recoil.display_stability_max = true
+no.recoil.game_performance_mode = true
+no.recoil.game_background_limit = strict
+no.recoil.game_cpu_boost = true
+no.recoil.game_gpu_boost = true
+no.recoil.game_frame_stability = true
+no.recoil.game_input_sync = true
+no.recoil.game_network_boost = true
+no.recoil.game_thermal_balance = safe
+no.recoil.game_overlay_disable = true
+no.recoil.game_audio_latency = min
+no.recoil.game_ready = true
+no.recoil.network_low_latency = true
+no.recoil.network_packet_priority = high
+no.recoil.network_buffer_optimized = true
+no.recoil.network_jitter_guard = true
+no.recoil.network_sync_max = true
+no.recoil.network_stability_max = true
+no.recoil.system_cache_clean = true
+no.recoil.system_cache_priority_high = true
+no.recoil.system_cache_stability_max = true
+no.recoil.system_cache_latency_min = true
+no.recoil.system_cache_sync = true
+no.recoil.thermal_smart = true
+no.recoil.thermal_cpu_limit_raise = true
+no.recoil.thermal_gpu_limit_raise = true
+no.recoil.thermal_monitor = true
+no.recoil.background_process_limit_strict = true
+no.recoil.background_process_cleanup = true
+no.recoil.background_process_priority_high = true
+no.recoil.background_process_freeze = true
+no.recoil.optimization_full_enable = true
+no.recoil.optimization_performance_max = true
+no.recoil.optimization_fps_stable = true
+no.recoil.optimization_sensitivity_ultra = true
+no.recoil.optimization_stability_max = true
+no.recoil.optimization_cpu_gpu_ram = true
+no.recoil.optimization_network = true
+no.recoil.optimization_display = true
+no.recoil.optimization_game_mode = true
+no.recoil.optimization_gesture_sync = true
+no.recoil.optimization_hover = true
+no.recoil.optimization_touch_response = ultra
+no.recoil.optimization_latency = 2
+no.recoil.optimization_flick = 1.5
+no.recoil.optimization_swipe = 1.3
+no.recoil.optimization_tap = 1.0
+no.recoil.optimization_long_press = 0.45
+no.recoil.optimization_drag = 0.98
+no.recoil.optimization_edge = 0.05
+no.recoil.optimization_center = 0.03
+no.recoil.optimization_micro = 0.01
+no.recoil.optimization_multi_touch = true
+no.recoil.optimization_hover_refine = true
+no.recoil.optimization_stylus_mode = true
+no.recoil.optimization_stylus_pressure = 2000
+no.recoil.optimization_stylus_tilt = 50
+no.recoil.optimization_stylus_button = true
+no.recoil.optimization_stylus_eraser = true
+
+-->
+</body>
+</html>
